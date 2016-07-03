@@ -1,7 +1,7 @@
 // Use the web-push library to hide the implementation details of the communication
 // between the application server and the push service.
-// For details, see https://tools.ietf.org/html/draft-ietf-webpush-protocol-01 and
-// https://tools.ietf.org/html/draft-thomson-webpush-encryption-01.
+// For details, see https://tools.ietf.org/html/draft-ietf-webpush-protocol and
+// https://tools.ietf.org/html/draft-ietf-webpush-encryption.
 var webPush = require('web-push');
 
 webPush.setGCMAPIKey(process.env.GCM_API_KEY);
@@ -22,10 +22,12 @@ module.exports = function(app, route) {
     var promises = [];
 
     var intervalID = setInterval(function() {
-      promises.push(webPush.sendNotification(req.body.endpoint,
-                                             200,
-                                             req.body.key,
-                                             JSON.stringify(req.body.visible)));
+      promises.push(webPush.sendNotification(req.body.endpoint, {
+        TTL: 200,
+        payload: JSON.stringify(req.body.visible),
+        userPublicKey: req.body.key,
+        userAuth: req.body.authSecret,
+      }));
 
       if (num++ === Number(req.body.num)) {
         clearInterval(intervalID);

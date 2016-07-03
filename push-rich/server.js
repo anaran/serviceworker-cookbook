@@ -1,7 +1,7 @@
 // Use the web-push library to hide the implementation details of the communication
 // between the application server and the push service.
-// For details, see https://tools.ietf.org/html/draft-ietf-webpush-protocol-01 and
-// https://tools.ietf.org/html/draft-thomson-webpush-encryption-01.
+// For details, see https://tools.ietf.org/html/draft-ietf-webpush-protocol and
+// https://tools.ietf.org/html/draft-ietf-webpush-encryption.
 var webPush = require('web-push');
 
 webPush.setGCMAPIKey(process.env.GCM_API_KEY);
@@ -14,7 +14,9 @@ module.exports = function(app, route) {
 
   app.post(route + 'sendNotification', function(req, res) {
     setTimeout(function() {
-      webPush.sendNotification(req.query.endpoint, req.query.ttl)
+      webPush.sendNotification(req.query.endpoint, {
+        TTL: req.query.ttl,
+      })
       .then(function() {
         res.sendStatus(201);
       });
